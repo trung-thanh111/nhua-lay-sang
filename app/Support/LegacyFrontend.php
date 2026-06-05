@@ -191,8 +191,7 @@ class LegacyFrontend
     public static function randomProducts(int $language = 1, int $limit = 20): array
     {
         return self::productsQuery($language)
-            ->orderBy('products.order', 'asc')
-            ->orderBy('products.id', 'desc')
+            ->inRandomOrder()
             ->limit($limit)
             ->get()
             ->map(fn ($product) => self::productArray($product))
@@ -537,9 +536,41 @@ class LegacyFrontend
 
     private static function pivotValue($model, string $field): ?string
     {
-        $language = $model?->languages?->first();
+        if (!$model) {
+            return null;
+        }
 
-        return $language?->pivot?->{$field};
+        $languages = $model->languages ?? null;
+        if (!$languages) {
+            return null;
+        }
+
+        $language = ($languages instanceof \Illuminate\Support\Collection || is_array($languages))
+            ? collect($languages)->first()
+            : $languages;
+
+        if (!$language) {
+            return null;
+        }
+
+        if (isset($language->pivot)) {
+            $pivot = $language->pivot;
+            if (is_array($pivot)) {
+                return $pivot[$field] ?? null;
+            }
+            if (is_object($pivot)) {
+                return $pivot->{$field} ?? null;
+            }
+        }
+
+        if (is_array($language)) {
+            return $language[$field] ?? null;
+        }
+        if (is_object($language)) {
+            return $language->{$field} ?? null;
+        }
+
+        return null;
     }
 
     private static function productsQuery(int $language)

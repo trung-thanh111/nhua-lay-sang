@@ -44,14 +44,15 @@ class HomeController extends FrontendController
         );
 
         $widgets = $this->widgetService->getWidget([
-            ['keyword' => 'intro'],
-            ['keyword' => 'bring'],
-            ['keyword' => 'p-hl'],
-            ['keyword' => 'category', 'children' => true],
-            ['keyword' => 'feedback', 'object' => true],
-            ['keyword' => 'news', 'object' => true],
-            ['keyword' => 'value', 'object' => true],
-            ['keyword' => 'ship'],
+            // ['keyword' => 'intro'],
+            // ['keyword' => 'bring'],
+            // ['keyword' => 'p-hl'],
+            ['keyword' => 'categories', 'children' => true, 'limit' => 8],
+            ['keyword' => 'sub-categories', 'children' => true, 'limit' => 6],
+            // ['keyword' => 'feedback', 'object' => true],
+            ['keyword' => 'news', 'children' => true, 'limit' => 5],
+            // ['keyword' => 'value', 'object' => true],
+            // ['keyword' => 'ship'],
         ], $this->language);
 
 

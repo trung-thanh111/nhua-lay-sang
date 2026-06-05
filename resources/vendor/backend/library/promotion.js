@@ -336,7 +336,7 @@ var HT = {};
         })
 
         let method = $('.preload_promotionMethod').val()
-        if(method.length && typeof method !== 'undefined'){
+        if(typeof method !== 'undefined' && method !== null && method.length){
             $('.promotionMethod').val(method).trigger('change')
         }
     }
@@ -784,7 +784,7 @@ var HT = {};
     }
 
     HT.addProduct = () => {
-        $(document).on('click', '.ajax-search-item', function(e){
+        $(document).on('click', '.ajax-search-pd .ajax-search-item', function(e){
             e.preventDefault()
             let _this = $(this)
             let data = _this.data()
@@ -1347,6 +1347,9 @@ var HT = {};
                 model: $('.select-product-and-quantity').val(),
                 keyword : keyword
             }
+            if (typeof option.model === 'undefined' || option.model === null) {
+                return;
+            }
             clearTimeout(typingTimer);
             typingTimer = setTimeout(function(){
                 HT.loadProduct(option)
@@ -1381,7 +1384,8 @@ var HT = {};
 
     HT.confirmProductPromotion = () => {
 
-        let preloadObject =  JSON.parse($('.input_object').val()) || {
+        let inputObjectVal = $('.input_object').val();
+        let preloadObject = (inputObjectVal && inputObjectVal !== 'undefined') ? JSON.parse(inputObjectVal) : {
             id: [],
             product_variant_id: [],
             name: [],

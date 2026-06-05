@@ -5,6 +5,54 @@
 <section class="footer-commitment uk-visible-large">
     <div class="uk-container uk-container-center">
         <div class="uk-grid lib-grid-15 uk-grid-width-small-1-2 uk-grid-width-large-1-4">
+            @php
+                $commitments = \Illuminate\Support\Facades\Cache::remember('footer_commitments_lang_' . ($config['language'] ?? 1), 3600, function() use ($config) {
+                    $langId = $config['language'] ?? 1;
+                    $publishCol = \Illuminate\Support\Facades\Schema::hasColumn('posts', 'publish') ? 'publish' : 'pubish';
+                    $posts = \Illuminate\Support\Facades\DB::table('posts')
+                        ->join('post_language', 'post_language.post_id', '=', 'posts.id')
+                        ->whereIn('posts.id', [2, 3, 4, 5])
+                        ->where('post_language.language_id', $langId)
+                        ->where("posts.{$publishCol}", 2)
+                        ->whereNull('posts.deleted_at')
+                        ->select('post_language.name as title', 'post_language.description as subtitle')
+                        ->orderByRaw('FIELD(posts.id, 5, 4, 3, 2)')
+                        ->get();
+
+                    if ($posts->count() < 4) {
+                        return [
+                            ['title' => 'DỊCH VỤ CHUYÊN NGHIỆP', 'subtitle' => 'Chuyên nghiệp - Tận tâm - Linh hoạt'],
+                            ['title' => 'SẢN PHẨM ĐA DẠNG', 'subtitle' => 'Đa dạng về mục đích sử dụng'],
+                            ['title' => 'UY TÍN HÀNG ĐẦU', 'subtitle' => 'Năng lực & Nhiệt huyết'],
+                            ['title' => 'MẪU MÃ ĐA DẠNG', 'subtitle' => 'Sản phẩm chất lượng cao'],
+                        ];
+                    }
+
+                    return $posts->map(function($post) {
+                        return [
+                            'title' => mb_strtoupper($post->title, 'UTF-8'),
+                            'subtitle' => trim(strip_tags(html_entity_decode($post->subtitle)))
+                        ];
+                    })->all();
+                });
+            @endphp
+            @foreach($commitments as $item)
+                <div class="commitment-item">
+                    <div class="content uk-flex uk-flex-middle">
+                        <div class="text">
+                            <div class="title">{{ $item['title'] }}</div>
+                            <div class="subtitle">{{ $item['subtitle'] }}</div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+{{-- <section class="footer-commitment uk-visible-large">
+    <div class="uk-container uk-container-center">
+        <div class="uk-grid lib-grid-15 uk-grid-width-small-1-2 uk-grid-width-large-1-4">
             @foreach(array_slice($highlight_post ?? [], 0, 4) as $item)
                 <div class="commitment-item">
                     <div class="content uk-flex uk-flex-middle">
@@ -17,7 +65,7 @@
             @endforeach
         </div>
     </div>
-</section>
+</section> --}}
 
 <footer class="footer" id="footer">
     <div class="uk-container uk-container-center">

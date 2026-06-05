@@ -72,6 +72,7 @@
             </section>
         @endif
 
+        {{--
         @if(!empty($product_catalogues_is))
             @foreach($product_catalogues_is as $catalogue)
                 @php
@@ -109,8 +110,79 @@
                 </section>
             @endforeach
         @endif
+        --}}
 
-        <div class="uk-grid uk-grid-medium uk-grid-width-large-1-2">
+        @if(isset($widgets['categories']) && !empty($widgets['categories']->object))
+            @foreach($widgets['categories']->object as $catalogue)
+                @php
+                    $titleC = $catalogue->languages->name ?? '';
+                    $hrefC = rewrite_url($catalogue->languages->canonical ?? '');
+                @endphp
+                <section class="panel-products home home-productCatalogue">
+                    <header class="panel-head skin-1 uk-flex uk-flex-middle uk-flex-space-between">
+                        <h2 class="heading-1"><a href="{{ $hrefC }}" title="{{ $titleC }}">{{ $titleC }}</a></h2>
+                        @if(!empty($catalogue->childrens))
+                            <ul class="uk-list uk-clearfix listCat uk-visible-large">
+                                @foreach($catalogue->childrens as $child)
+                                    <li><a href="{{ rewrite_url($child->languages->canonical ?? '') }}" title="{{ $child->languages->name ?? '' }}">{{ $child->languages->name ?? '' }}</a></li>
+                                @endforeach
+                            </ul>
+                        @endif
+                        <div class="viewmore uk-hidden-large"><a href="{{ $hrefC }}" title="{{ $titleC }}">Xem tất cả <i class="fa fa-angle-double-right"></i></a></div>
+                    </header>
+                    <section class="panel-body">
+                        <div class="uk-grid lib-grid-20">
+                            <div class="uk-width-large-1-5 lib-visible-xlarge">
+                                <div class="banner img-cover"><a href="{{ $hrefC }}" title="{{ $titleC }}"><img class="lazy" data-original="{{ getthumb($catalogue->image ?? null) }}" src="{{ getthumb($catalogue->image ?? null) }}" alt="{{ $titleC }}"></a></div>
+                            </div>
+                            <div class="uk-width-xlarge-4-5">
+                                @if(!empty($catalogue->products))
+                                    <div class="uk-grid lib-grid-15 uk-grid-width-1-2 uk-grid-width-medium-1-3 uk-grid-width-large-1-4 list-product" data-uk-grid-match="{target:'.product-1 .product-title'}">
+                                        @foreach($catalogue->products->take(8) as $product)
+                                            @php
+                                                $formattedProduct = \App\Support\LegacyFrontend::productArray($product);
+                                            @endphp
+                                            @include('frontend.component.legacy-product-item', ['product' => $formattedProduct])
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </section>
+                </section>
+            @endforeach
+        @endif
+
+        @if(isset($widgets['sub-categories']) && !empty($widgets['sub-categories']->object))
+            <div class="uk-grid uk-grid-medium uk-grid-width-large-1-2">
+                @foreach($widgets['sub-categories']->object as $catalogue)
+                    @php
+                        $titleC = $catalogue->languages->name ?? '';
+                        $hrefC = rewrite_url($catalogue->languages->canonical ?? '');
+                    @endphp
+                    <section class="panel-products home home-productCatalogue skin-1">
+                        <header class="panel-head skin-1 uk-flex uk-flex-middle uk-flex-space-between">
+                            <h2 class="heading-1"><a href="{{ $hrefC }}" title="{{ $titleC }}">{{ $titleC }}</a></h2>
+                            <div class="viewmore"><a href="{{ $hrefC }}" title="{{ $titleC }}">Xem tất cả <i class="fa fa-angle-double-right"></i></a></div>
+                        </header>
+                        @if(!empty($catalogue->products))
+                            <section class="panel-body">
+                                <div class="uk-grid lib-grid-15 uk-grid-width-1-2 list-product" data-uk-grid-match="{target:'.product-1 .product-title'}">
+                                    @foreach($catalogue->products as $product)
+                                        @php
+                                            $formattedProduct = \App\Support\LegacyFrontend::productArray($product);
+                                        @endphp
+                                        @include('frontend.component.legacy-product-item', ['product' => $formattedProduct, 'skinClass' => 'skin-1'])
+                                    @endforeach
+                                </div>
+                            </section>
+                        @endif
+                    </section>
+                @endforeach
+            </div>
+        @endif
+
+        {{-- <div class="uk-grid uk-grid-medium uk-grid-width-large-1-2">
             @foreach($product_catalogues_hl ?? [] as $catalogue)
                 @php $href = rewrite_url($catalogue['canonical'] ?? ''); @endphp
                 <section class="panel-products home home-productCatalogue skin-1">
@@ -129,11 +201,87 @@
                     @endif
                 </section>
             @endforeach
-        </div>
+        </div> --}}
 
         <div class="uk-grid uk-grid-medium">
             <div class="uk-width-large-3-4">
-                @foreach($news ?? [] as $catalogue)
+                @if(isset($widgets['news']) && !empty($widgets['news']->object))
+                    @foreach($widgets['news']->object as $catalogue)
+                        @php
+                            $titleC = $catalogue->languages->name ?? '';
+                            $hrefC = rewrite_url($catalogue->languages->canonical ?? '');
+                        @endphp
+                        <section class="article-catalogue-1">
+                            <header class="panel-head skin-1 uk-flex uk-flex-middle uk-flex-space-between">
+                                <h2 class="heading-1"><a href="{{ $hrefC }}" title="{{ $titleC }}">{{ $titleC }}</a></h2>
+                                @if(!empty($catalogue->childrens))
+                                    <ul class="uk-list uk-clearfix listCat uk-visible-large">
+                                        @foreach($catalogue->childrens as $child)
+                                            <li><a href="{{ rewrite_url($child->languages->canonical ?? '') }}" title="{{ $child->languages->name ?? '' }}">{{ $child->languages->name ?? '' }}</a></li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+                            </header>
+                            @if(!empty($catalogue->posts))
+                                <section class="panel-body">
+                                    <div class="uk-grid uk-grid-medium">
+                                        <div class="uk-width-xlarge-2-3">
+                                            @foreach($catalogue->posts->slice(0, 1) as $post)
+                                                @php
+                                                    $formattedPost = \App\Support\LegacyFrontend::postArray($post);
+                                                    $postHref = rewrite_url($formattedPost['canonical'] ?? '');
+                                                    $postImage = getthumb($formattedPost['images'] ?? null);
+                                                    $postTitle = $formattedPost['title'] ?? '';
+                                                    $postCreated = $formattedPost['created'] ?? '';
+                                                    $postDesc = $formattedPost['description'] ?? '';
+                                                @endphp
+                                                <article class="featured article">
+                                                    <h3 class="article-title"><a href="{{ $postHref }}" title="{{ $postTitle }}">{{ $postTitle }}</a></h3>
+                                                    <div class="article-thumb"><a class="article-image img-cover" href="{{ $postHref }}" title="{{ $postTitle }}"><img class="lazy" data-original="{{ $postImage }}" src="{{ $postImage }}" alt="{{ $postTitle }}"></a></div>
+                                                    <div class="article-info">
+                                                        <div class="article-meta"><img src="{{ asset('templates/frontend/resources/img/calendar.png') }}" alt="">Ngày đăng: {{ $postCreated }}</div>
+                                                        <div class="article-description">{{ cutnchar(strip_tags($postDesc), 1000) }}</div>
+                                                    </div>
+                                                </article>
+                                            @endforeach
+                                        </div>
+                                        <div class="uk-width-xlarge-1-3">
+                                            <div class="uk-grid ec-grid-20 uk-grid-width-small-1-2 uk-grid-width-xlarge-1-1 list-article">
+                                                @foreach($catalogue->posts->slice(1, 4) as $post)
+                                                    @php
+                                                        $formattedPost = \App\Support\LegacyFrontend::postArray($post);
+                                                        $postHref = rewrite_url($formattedPost['canonical'] ?? '');
+                                                        $postImage = getthumb($formattedPost['images'] ?? null);
+                                                        $postTitle = $formattedPost['title'] ?? '';
+                                                        $postCreated = $formattedPost['created'] ?? '';
+                                                    @endphp
+                                                    <div class="article-item-horizontal uk-flex uk-flex-top" style="margin-bottom: 20px;">
+                                                        <div class="thumb" style="width: 100px; flex-shrink: 0; margin-right: 15px;">
+                                                            <a class="img-cover" href="{{ $postHref }}" title="{{ $postTitle }}" style="display: block; border: 1px solid #ddd; padding: 2px; background: #fff;">
+                                                                <img class="lazy" data-original="{{ $postImage }}" src="{{ $postImage }}" alt="{{ $postTitle }}" style="width: 100%; height: 60px; object-fit: cover;">
+                                                            </a>
+                                                        </div>
+                                                        <div class="info" style="flex-grow: 1;">
+                                                            <h4 class="title" style="margin: 0 0 5px 0; font-size: 14px; line-height: 1.4; font-weight: normal;">
+                                                                <a href="{{ $postHref }}" title="{{ $postTitle }}" style="color: #333; text-decoration: none; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ $postTitle }}</a>
+                                                            </h4>
+                                                            <div class="date" style="font-size: 12px; color: #888; display: flex; align-items: center; gap: 5px;">
+                                                                <img src="{{ asset('templates/frontend/resources/img/calendar.png') }}" alt="" style="width: 14px; height: 14px; vertical-align: middle;">
+                                                                Ngày đăng {{ $postCreated }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            @endif
+                        </section>
+                    @endforeach
+                @endif
+
+                {{-- @foreach($news ?? [] as $catalogue)
                     @php $href = rewrite_url($catalogue['canonical'] ?? ''); @endphp
                     <section class="article-catalogue-1">
                         <header class="panel-head skin-1 uk-flex uk-flex-middle uk-flex-space-between">
@@ -176,7 +324,7 @@
                             </section>
                         @endif
                     </section>
-                @endforeach
+                @endforeach --}}
             </div>
             <div class="uk-width-large-1-4 uk-visible-large">
                 @include('frontend.component.aside-2')

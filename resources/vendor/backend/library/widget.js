@@ -109,7 +109,7 @@
     }
 
     HT.addModel = () => {
-        $(document).on('click', '.ajax-search-item' , function(e){
+        $(document).on('click', '.ajax-search-result .ajax-search-item' , function(e){
             e.preventDefault()
             let _this = $(this)
             let data = _this.data()

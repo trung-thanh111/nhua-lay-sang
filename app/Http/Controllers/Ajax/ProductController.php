@@ -57,11 +57,16 @@ class ProductController extends Controller
     public function loadProductPromotion(Request $request)
     {
 
-        $get = $request->input();
+        $model = $request->input('model');
+        if (empty($model)) {
+            return response()->json([
+                'error' => 'Model is required'
+            ], 400);
+        }
 
-        $loadClass = loadClass($get['model']);
+        $loadClass = loadClass($model);
 
-        if ($get['model'] == 'Product') {
+        if ($model == 'Product') {
             $condition = [
                 ['tb2.language_id', '=', $this->language]
             ];
@@ -70,7 +75,7 @@ class ProductController extends Controller
                 array_push($condition, $keywordCondition);
             }
             $objects = $loadClass->findProductForPromotion($condition);
-        } else if ($get['model'] == 'ProductCatalogue') {
+        } else if ($model == 'ProductCatalogue') {
 
             $conditionArray['keyword'] = ($get['keyword']) ?? null;
             $conditionArray['where'] = [
@@ -94,7 +99,7 @@ class ProductController extends Controller
         }
 
         return response()->json([
-            'model' => ($get['model']) ?? 'Product',
+            'model' => $model,
             'objects' => $objects,
         ]);
     }
@@ -102,9 +107,14 @@ class ProductController extends Controller
     public function loadProductVoucher(Request $request)
     {
 
-        $get = $request->input();
+        $model = $request->input('model');
+        if (empty($model)) {
+            return response()->json([
+                'error' => 'Model is required'
+            ], 400);
+        }
 
-        $loadClass = loadClass($get['model']);
+        $loadClass = loadClass($model);
 
         $condition = [
             ['tb2.language_id', '=', $this->language]
@@ -118,7 +128,7 @@ class ProductController extends Controller
         $objects = $loadClass->findProductForVoucher($condition);
 
         return response()->json([
-            'model' => ($get['model']) ?? 'Product',
+            'model' => $model,
             'objects' => $objects,
         ]);
     }

@@ -373,6 +373,7 @@ class WidgetService extends BaseService
         $languageTable = str_replace('_catalogues', '_catalogue_language', $tableName);
         $catalogueIdField = $this->getCatalogueIdField($tableName);
         $modelIdList = implode(',', array_map('intval', $modelIds));
+        $publishField = $this->getPublishColumn($tableName);
 
         $results = DB::select("
             SELECT 
@@ -387,9 +388,9 @@ class WidgetService extends BaseService
             LEFT JOIN {$languageTable} cl ON c.id = cl.{$catalogueIdField} 
                 AND cl.language_id = ?
             WHERE c.id IN ({$modelIdList})
-            AND c.publish = 2 
+            AND c.{$publishField} = 2 
             AND c.deleted_at IS NULL
-            ORDER BY c.order DESC, c.id DESC
+            ORDER BY c.order ASC, c.id DESC
         ", [$language]);
 
         return collect($results)->map(function ($item) {
@@ -435,11 +436,13 @@ class WidgetService extends BaseService
         $languageTable = str_replace('_catalogues', '_catalogue_language', $tableName);
         $catalogueIdField = $this->getCatalogueIdField($tableName);
         $parentIdList = implode(',', array_map('intval', $needsChildren));
+        $publishField = $this->getPublishColumn($tableName);
+        $parentField = $this->getParentIdColumn($tableName);
 
         $results = DB::select("
             SELECT 
                 c.*,
-                c.parent_id,
+                c.{$parentField} as parent_id,
                 cl.name as language_name,
                 cl.canonical,
                 cl.meta_title,
@@ -447,8 +450,8 @@ class WidgetService extends BaseService
             FROM {$tableName} c
             LEFT JOIN {$languageTable} cl ON c.id = cl.{$catalogueIdField} 
                 AND cl.language_id = ?
-            WHERE c.parent_id IN ({$parentIdList})
-            AND c.publish = 2 
+            WHERE c.{$parentField} IN ({$parentIdList})
+            AND c.{$publishField} = 2 
             AND c.deleted_at IS NULL
             ORDER BY c.order ASC
         ", [$language]);
@@ -480,6 +483,7 @@ class WidgetService extends BaseService
 
         $objectModel = $this->getObjectModel($catalogueModel);
         $objectTable = $this->getTableName($objectModel);
+        $publishField = $this->getPublishColumn($objectTable);
         $pivotTable = $this->getPivotTableName($objectModel);
         $catalogueIdField = $this->normalizeField($catalogueModel);
         $objectIdField = $objectModel . '_id';
@@ -500,6 +504,8 @@ class WidgetService extends BaseService
         $objectCatalogueTable = $this->getTableName($catalogueModel);
         $objectCatalogueLanguageTable = str_replace('_catalogues', '_catalogue_language', $objectCatalogueTable);
         $categoryIdList = implode(',', array_map('intval', $allCategoryIds));
+        $hasCanonical = DB::getSchemaBuilder()->hasColumn($objectLanguageTable, 'canonical');
+        $canonicalSelect = $hasCanonical ? 'ol.canonical' : "'' as canonical";
 
         // --- FULL SQL ---
         $sql = "
@@ -507,7 +513,7 @@ class WidgetService extends BaseService
                 o.*,
                 p.{$catalogueIdField} as category_id,
                 ol.name as language_name,
-                ol.canonical,
+                {$canonicalSelect},
                 ol.meta_title,
                 ol.meta_description,
                 ol.description as language_description,
@@ -545,7 +551,7 @@ class WidgetService extends BaseService
 
         $sql .= "
             WHERE p.{$catalogueIdField} IN ({$categoryIdList})
-            AND o.publish = 2 
+            AND o.{$publishField} = 2 
             AND o.deleted_at IS NULL
             GROUP BY o.id, p.{$catalogueIdField}
             ORDER BY o.order DESC, o.id DESC
@@ -569,8 +575,10 @@ class WidgetService extends BaseService
                 'description'      => $row->language_description,
                 'content'          => $row->content,
                 'pivot'            => (object)[
-                    'name'      => $row->language_name,
-                    'canonical' => $row->canonical,
+                    'name'        => $row->language_name,
+                    'canonical'   => $row->canonical,
+                    'description' => $row->language_description,
+                    'content'     => $row->content,
                 ]
             ];
             $row->languages = collect([$languageData]);
@@ -661,17 +669,20 @@ class WidgetService extends BaseService
         }
 
         $languageTable = Str::snake($model) . '_language';
+        $publishField = $this->getPublishColumn($tableName);
         $catalogueTable = Str::snake($model) . '_catalogues';
         $catalogueLanguageTable = Str::snake($model) . '_catalogue_language';
         $pivotTable = Str::snake($model) . '_catalogue_' . Str::snake($model);
         $modelIdList = implode(',', array_map('intval', $modelIds));
+        $hasCanonical = DB::getSchemaBuilder()->hasColumn($languageTable, 'canonical');
+        $canonicalSelect = $hasCanonical ? 'ol.canonical' : "'' as canonical";
 
 
         $sql = "
             SELECT 
                 o.*,
                 ol.name as language_name,
-                ol.canonical,
+                {$canonicalSelect},
                 ol.meta_title,
                 ol.meta_description,
                 ol.description as language_description,
@@ -704,7 +715,7 @@ class WidgetService extends BaseService
 
         $sql .= "
             WHERE o.id IN ({$modelIdList})
-            AND o.publish = 2 
+            AND o.{$publishField} = 2 
             AND o.deleted_at IS NULL
             GROUP BY o.id
             ORDER BY o.order DESC
@@ -712,14 +723,21 @@ class WidgetService extends BaseService
 
         return collect(DB::select($sql, [$language, $language]))->map(function ($item) use ($model) {
             // Process similar to getObjectsBatch
-            $item->languages = (object) [
+            $languageData = (object) [
                 'name' => $item->language_name,
                 'canonical' => $item->canonical,
                 'meta_title' => $item->meta_title,
                 'meta_description' => $item->meta_description,
                 'description' => $item->language_description,
-                'content' => $item->content
+                'content' => $item->content,
+                'pivot' => (object) [
+                    'name' => $item->language_name,
+                    'canonical' => $item->canonical,
+                    'description' => $item->language_description,
+                    'content' => $item->content,
+                ]
             ];
+            $item->languages = collect([$languageData]);
 
             if ($item->catalogue_ids) {
                 $catalogueIds = explode(',', $item->catalogue_ids);
@@ -779,9 +797,10 @@ class WidgetService extends BaseService
      */
     private function collectChildrenIds(string $tableName, int $parentId, array &$ids): void
     {
+        $parentField = $this->getParentIdColumn($tableName);
         $children = DB::select("
             SELECT id FROM {$tableName} 
-            WHERE parent_id = ? AND deleted_at IS NULL
+            WHERE {$parentField} = ? AND deleted_at IS NULL
         ", [$parentId]);
 
         foreach ($children as $child) {
@@ -845,5 +864,23 @@ class WidgetService extends BaseService
     private function getCatalogueIdFieldForPivot(string $catalogueModel): string
     {
         return strtolower($catalogueModel) . '_id';
+    }
+
+    private function getPublishColumn(string $table): string
+    {
+        static $publishCache = [];
+        if (!isset($publishCache[$table])) {
+            $publishCache[$table] = DB::getSchemaBuilder()->hasColumn($table, 'publish') ? 'publish' : 'pubish';
+        }
+        return $publishCache[$table];
+    }
+
+    private function getParentIdColumn(string $table): string
+    {
+        static $parentCache = [];
+        if (!isset($parentCache[$table])) {
+            $parentCache[$table] = DB::getSchemaBuilder()->hasColumn($table, 'parent_id') ? 'parent_id' : 'parentid';
+        }
+        return $parentCache[$table];
     }
 }

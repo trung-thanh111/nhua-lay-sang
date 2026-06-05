@@ -1,5 +1,5 @@
 @php
-    $randomProduct = \App\Support\LegacyFrontend::randomProducts($config['language'] ?? 1, 20);
+    $randomProduct = \App\Support\LegacyFrontend::randomProducts($config['language'] ?? 1, 2);
 @endphp
 <aside class="aside aside-article">
     @if(!empty($system['banner_banner1']))
