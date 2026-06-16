@@ -362,7 +362,7 @@ class LegacyFrontend
             'product_catalogues_hl' => array_slice($productCatalogues, 0, 4),
             'news' => $postCatalogues,
             'highlight_post' => self::postsQuery($language)
-                ->orderBy('posts.order', 'asc')
+                ->orderBy('posts.order', 'desc')
                 ->orderBy('posts.id', 'desc')
                 ->limit(6)
                 ->get()
@@ -634,7 +634,7 @@ class LegacyFrontend
         return self::postsQuery($language)
             ->join('post_catalogue_post', 'post_catalogue_post.post_id', '=', 'posts.id')
             ->where('post_catalogue_post.post_catalogue_id', $catalogueId)
-            ->orderBy('posts.order', 'asc')
+            ->orderBy('posts.order', 'desc')
             ->orderBy('posts.id', 'desc')
             ->limit($limit)
             ->get()
