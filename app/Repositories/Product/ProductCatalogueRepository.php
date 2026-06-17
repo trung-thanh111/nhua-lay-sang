@@ -60,6 +60,7 @@ class ProductCatalogueRepository extends BaseRepository
                 'product_catalogues.follow',
                 'product_catalogues.attribute',
                 'product_catalogues.short_name',
+                'product_catalogues.sort',
                 'tb2.name',
                 'tb2.description',
                 'tb2.content',

@@ -111,7 +111,12 @@ class ProductService extends BaseService
             'groupBy' => $this->paginateSelect()
         ];
 
-        $orderBy = ['products.order', 'DESC'];
+        $orderBy = ['products.id', 'DESC'];
+        if (!is_null($productCatalogue) && isset($productCatalogue->sort)) {
+            if ($productCatalogue->sort == 1) {
+                $orderBy = ['products.order', 'DESC'];
+            }
+        }
 
         $relations = ['product_catalogues'];
 

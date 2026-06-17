@@ -53,4 +53,21 @@
         </div>
     </div>
 </div>
+<div class="ibox w">
+    <div class="ibox-title">
+        <h5>Sắp xếp sản phẩm</h5>
+    </div>
+    <div class="ibox-content">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="form-row">
+                    <select name="sort" class="form-control setupSelect2">
+                        <option value="0" {{ old('sort', (isset($productCatalogue->sort)) ? $productCatalogue->sort : 0) == 0 ? 'selected' : '' }}>Mới nhất</option>
+                        <option value="1" {{ old('sort', (isset($productCatalogue->sort)) ? $productCatalogue->sort : 0) == 1 ? 'selected' : '' }}>Số thứ tự (Order)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @include('backend.dashboard.component.publish', ['model' => ($productCatalogue) ?? null, 'hideImage' => true])

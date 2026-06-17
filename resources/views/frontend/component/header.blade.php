@@ -29,7 +29,6 @@
                 <div>
                     <a href="{{ url('gio-hang' . config('apps.general.suffix')) }}"><i class="fa fa-cart-plus"></i></a>
                     <a href="?lang=vietnamese"><img src="{{ asset('templates/backend/images/vietnam.gif') }}" alt="vietnamese"></a>
-                    <a href="?lang=english"><img src="{{ asset('templates/backend/images/english.png') }}" alt="english"></a>
                 </div>
             </div>
         </div>
@@ -114,7 +113,6 @@
                     <div style="text-align:center;">
                         <a href="{{ url('gio-hang' . config('apps.general.suffix')) }}" style="color:#ff0000;font-size:28px;float:left;padding-left:20px;"><i class="fa fa-cart-plus"></i></a>
                         <a href="?lang=vietnamese"><img src="{{ asset('templates/backend/images/vietnam.gif') }}" alt="vietnamese"></a>
-                        <a href="?lang=english"><img src="{{ asset('templates/backend/images/english.png') }}" alt="english"></a>
                     </div>
                 </div>
             </div>
