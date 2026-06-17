@@ -116,7 +116,7 @@
 
     HT.checkConditionItemSet = () => {
         let checkedValue = $('.conditionItemSelected').val()
-        if(checkedValue.length && $('.conditionItem').length){
+        if(checkedValue && checkedValue.length && $('.conditionItem').length){
             checkedValue = JSON.parse(checkedValue)
             $('.conditionItem').val(checkedValue).trigger('change')
         }
@@ -516,7 +516,7 @@
     }
 
     HT.getPaginationMenu = () => {
-        $(document).on('click', '.page-link', function(e){
+        $(document).on('click', '.search-list .page-link', function(e){
             e.preventDefault()
             let _this = $(this)
             let option = {

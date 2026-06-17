@@ -204,7 +204,7 @@ HT.menuLinks = (links) => {
 
 HT.getPaginationMenu = () => {
    if($('.search-menu').length > 0){
-     $(document).on('click', '.page-link', function(e){
+     $(document).on('click', '.menu-list .page-link', function(e){
         e.preventDefault()
         let _this = $(this)
         let option = {
