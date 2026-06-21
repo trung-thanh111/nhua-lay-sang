@@ -24,7 +24,8 @@ class PostCatalogue extends Model
         'follow',
         'order',
         'user_id',
-        'short_name'
+        'short_name',
+        'post_order'
     ];
 
     protected $table = 'post_catalogues';

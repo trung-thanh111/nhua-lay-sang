@@ -56,13 +56,19 @@ class PostCatalogueController extends FrontendController
         );
         
         $breadcrumb = $this->postCatalogueRepository->breadcrumb($postCatalogue, $this->language);
+        
+        $sort = [['posts.id', 'desc']];
+        if (isset($postCatalogue->post_order) && $postCatalogue->post_order === 'order') {
+            $sort = [['posts.order', 'desc'], ['posts.id', 'desc']];
+        }
+
         $posts = $this->postService->paginate(
             $request,
             $this->language,
             $postCatalogue,
             $page,
             ['path' => $postCatalogue->canonical],
-            [['posts.order', 'desc'], ['posts.id', 'desc']]
+            $sort
         );
 
         // dd($posts->toArray());

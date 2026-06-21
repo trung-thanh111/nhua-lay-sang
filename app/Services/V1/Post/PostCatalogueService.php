@@ -229,7 +229,8 @@ class PostCatalogueService extends BaseService
             'publish',
             'image',
             'album',
-            'short_name'
+            'short_name',
+            'post_order'
         ];
     }
     private function payloadLanguage(){

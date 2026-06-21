@@ -350,7 +350,7 @@ class LegacyFrontend
             ->map(function ($catalogue) use ($language) {
                 $item = self::postCatalogueArray($catalogue);
                 $item['child'] = self::postChildren($catalogue->id, $language, 4);
-                $item['post'] = self::postsByCatalogue($catalogue->id, $language, 3);
+                $item['post'] = self::postsByCatalogue($catalogue->id, $language, 3, $catalogue->post_order ?? 'latest');
                 return $item;
             })
             ->all();
@@ -414,7 +414,7 @@ class LegacyFrontend
         $children = self::postChildren((int) $postCatalogue->id, $language, 10);
 
         foreach ($children as $key => $child) {
-            $children[$key]['post'] = self::postsByCatalogue((int) $child['id'], $language, 8);
+            $children[$key]['post'] = self::postsByCatalogue((int) $child['id'], $language, 8, $child['post_order'] ?? 'latest');
         }
 
         return [
@@ -531,6 +531,7 @@ class LegacyFrontend
             'banner_2' => '',
             'banner_3' => '',
             'type' => $type,
+            'post_order' => $catalogue->post_order ?? 'latest',
         ];
     }
 
@@ -629,14 +630,19 @@ class LegacyFrontend
             ->all();
     }
 
-    private static function postsByCatalogue(int $catalogueId, int $language, int $limit): array
+    private static function postsByCatalogue(int $catalogueId, int $language, int $limit, string $postOrder = 'latest'): array
     {
-        return self::postsQuery($language)
+        $query = self::postsQuery($language)
             ->join('post_catalogue_post', 'post_catalogue_post.post_id', '=', 'posts.id')
-            ->where('post_catalogue_post.post_catalogue_id', $catalogueId)
-            ->orderBy('posts.order', 'desc')
-            ->orderBy('posts.id', 'desc')
-            ->limit($limit)
+            ->where('post_catalogue_post.post_catalogue_id', $catalogueId);
+
+        if ($postOrder === 'order') {
+            $query->orderBy('posts.order', 'desc')->orderBy('posts.id', 'desc');
+        } else {
+            $query->orderBy('posts.id', 'desc');
+        }
+
+        return $query->limit($limit)
             ->get()
             ->map(fn ($post) => self::postArray($post))
             ->all();
