@@ -308,6 +308,12 @@ HT.exportExcel = () => {
     });
 }
 
+HT.submitFormOnChange = () => {
+    $(document).on('change', '.trigger-submit', function() {
+        $(this).closest('form').submit();
+    });
+}
+
 $(document).ready(function(){
     HT.addProgram()
     HT.removeProgram()
@@ -325,7 +331,7 @@ $(document).ready(function(){
     HT.int()
     HT.setupDatepicker()
     HT.setupDateRangePicker()
-    
+    HT.submitFormOnChange()
 });
 
 const addCommas = (nStr) => { 

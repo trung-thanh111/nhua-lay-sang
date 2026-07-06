@@ -73,7 +73,16 @@ class PostService extends BaseService
         ];
 
 
-        $orderBy = isset($sort) ? $sort : ['posts.id', 'DESC'];
+        $sortValue = $request->input('sort');
+        if ($sortValue === 'order_asc') {
+            $orderBy = ['posts.order', 'ASC'];
+        } elseif ($sortValue === 'order_desc') {
+            $orderBy = ['posts.order', 'DESC'];
+        } elseif ($sortValue === 'newest') {
+            $orderBy = ['posts.id', 'DESC'];
+        } else {
+            $orderBy = isset($sort) ? $sort : ['posts.id', 'DESC'];
+        }
         $relations = ['post_catalogues'];
         $rawQuery = $this->whereRaw($request, $languageId, $postCatalogue);
 

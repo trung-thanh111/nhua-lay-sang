@@ -47,7 +47,7 @@ class CustomerRepository extends BaseRepository
         }
 
         return $query->paginate($perPage)
-            ->withQueryString()->withPath(env('APP_URL').$extend['path']);
+            ->withQueryString()->withPath(url($extend['path']));
     }
 
     public function getCustomer($customer_id = [], $condition = [])

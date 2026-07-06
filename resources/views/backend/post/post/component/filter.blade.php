@@ -8,10 +8,19 @@
                     @php
                         $postCatalogueId = request('post_catalogue_id') ?: old('post_catalogue_id');
                     @endphp
-                    <select name="post_catalogue_id" class="form-control setupSelect2 ml10">
+                    <select name="post_catalogue_id" class="form-control setupSelect2 trigger-submit ml10">
                         @foreach($dropdown as $key => $val)
                         <option {{ ($postCatalogueId == $key)  ? 'selected' : '' }} value="{{ $key }}">{{ $val }}</option>
                         @endforeach
+                    </select>
+                    @php
+                        $sort = request('sort') ?: old('sort');
+                    @endphp
+                    <select name="sort" class="form-control setupSelect2 trigger-submit ml10">
+                        <option value="">-- Sắp xếp --</option>
+                        <option value="newest" {{ $sort == 'newest' ? 'selected' : '' }}>Mới nhất</option>
+                        <option value="order_asc" {{ $sort == 'order_asc' ? 'selected' : '' }}>Số thứ tự (Tăng dần)</option>
+                        <option value="order_desc" {{ $sort == 'order_desc' ? 'selected' : '' }}>Số thứ tự (Giảm dần)</option>
                     </select>
                     @include('backend.dashboard.component.keyword')
                     <a href="{{ route('post.create') }}" class="btn btn-danger"><i class="fa fa-plus mr5"></i>{{ __('messages.post.create.title') }}</a>

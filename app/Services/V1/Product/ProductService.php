@@ -111,10 +111,19 @@ class ProductService extends BaseService
             'groupBy' => $this->paginateSelect()
         ];
 
-        $orderBy = ['products.id', 'DESC'];
-        if (!is_null($productCatalogue) && isset($productCatalogue->sort)) {
-            if ($productCatalogue->sort == 1) {
-                $orderBy = ['products.order', 'DESC'];
+        $sortValue = $request->input('sort');
+        if ($sortValue === 'order_asc') {
+            $orderBy = ['products.order', 'ASC'];
+        } elseif ($sortValue === 'order_desc') {
+            $orderBy = ['products.order', 'DESC'];
+        } elseif ($sortValue === 'newest') {
+            $orderBy = ['products.id', 'DESC'];
+        } else {
+            $orderBy = ['products.id', 'DESC'];
+            if (!is_null($productCatalogue) && isset($productCatalogue->sort)) {
+                if ($productCatalogue->sort == 1) {
+                    $orderBy = ['products.order', 'DESC'];
+                }
             }
         }
 

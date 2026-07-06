@@ -35,6 +35,9 @@ class DashboardController extends Controller
         $namespace = $post['namespace'] ??  Str::words(Str::headline($post['model']), 1, '');
         $version = $post['version'] ?? 'V1';
         $serviceInterfaceNamespace = '\App\Services\\' . $version . '\\' . $namespace . '\\'  . ucfirst($post['model']) . 'Service';
+        if (!class_exists($serviceInterfaceNamespace) && $post['model'] === 'Language') {
+            $serviceInterfaceNamespace = '\App\Services\\' . $version . '\Core\LanguageService';
+        }
         if (class_exists($serviceInterfaceNamespace)) {
             $serviceInstance = app($serviceInterfaceNamespace);
             $flag = $serviceInstance->updateStatus($post);
@@ -48,10 +51,14 @@ class DashboardController extends Controller
         $version = $post['version'] ?? 'V1';
         $namespace = Str::words(Str::headline($post['model']), 1, '');
         $serviceInterfaceNamespace = '\App\Services\\' . $namespace . '\\' . $version . '\\' . ucfirst($post['model']) . 'Service';
+        if (!class_exists($serviceInterfaceNamespace) && $post['model'] === 'Language') {
+            $serviceInterfaceNamespace = '\App\Services\\' . $version . '\Core\LanguageService';
+        }
+        $flag = false;
         if (class_exists($serviceInterfaceNamespace)) {
             $serviceInstance = app($serviceInterfaceNamespace);
+            $flag = $serviceInstance->updateStatusAll($post);
         }
-        $flag = $serviceInstance->updateStatusAll($post);
         return response()->json(['flag' => $flag]); 
 
     }

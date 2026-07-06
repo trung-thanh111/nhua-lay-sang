@@ -372,6 +372,11 @@
     }
 
    
+    HT.submitFormOnChange = () => {
+        $(document).on('change', '.trigger-submit', function() {
+            $(this).closest('form').submit();
+        });
+    }
 
 
 
@@ -394,6 +399,7 @@
         HT.setupDateRangePicker()
         HT.sort()
         HT.changeFieldStatus()
+        HT.submitFormOnChange()
         
     });
 
