@@ -20,6 +20,7 @@ require __DIR__ . '/web/post.route.php';
 require __DIR__ . '/web/auth.route.php';
 require __DIR__ . '/web/ajax.route.php';
 require __DIR__ . '/web/custom.route.php';
+require __DIR__ . '/web/japanese.route.php';
 
 /*
 |--------------------------------------------------------------------------

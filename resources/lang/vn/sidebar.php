@@ -52,6 +52,33 @@ return [
             ]
         ],
         [
+            'title' => 'QL Tiếng Nhật',
+            'icon' => 'fa fa-graduation-cap',
+            'name' => ['japanese'],
+            'subModule' => [
+                [
+                    'title' => 'QL Bài học Minna',
+                    'route' => 'japanese/lesson/index'
+                ],
+                [
+                    'title' => 'QL Từ vựng',
+                    'route' => 'japanese/vocabulary/index'
+                ],
+                [
+                    'title' => 'QL Ngữ pháp',
+                    'route' => 'japanese/grammar/index'
+                ],
+                [
+                    'title' => 'QL Hán tự (Kanji)',
+                    'route' => 'japanese/kanji/index'
+                ],
+                [
+                    'title' => 'QL Đề thi JLPT',
+                    'route' => 'japanese/jlpt/index'
+                ],
+            ]
+        ],
+        [
             'title' => 'QL đơn hàng',
             'icon' => 'fa fa-shopping-bag',
             'name' => ['order'],
