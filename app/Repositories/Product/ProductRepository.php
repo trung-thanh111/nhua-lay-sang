@@ -336,8 +336,13 @@ class ProductRepository extends BaseRepository
 
     public function getProductByProductCatalogue(array $productCatalogue = [], $language_id = 0)
     {
-        $catalogueIds = implode(',', $productCatalogue);
-        $catalogueCount = count($productCatalogue);
+        $catalogueIds = array_values(array_filter(array_map('intval', (array) $productCatalogue), fn($id) => $id > 0));
+        if (empty($catalogueIds)) {
+            return collect();
+        }
+        $catalogueCount = count($catalogueIds);
+        $placeholders = implode(',', array_fill(0, $catalogueCount, '?'));
+
         $products = Product::withCount(['reviews as review_count'])
             ->withAvg('reviews as review_average', 'score')
             ->select([
@@ -358,13 +363,13 @@ class ProductRepository extends BaseRepository
             ->whereRaw("products.id IN (
                 SELECT product_id
                 FROM product_catalogue_product
-                WHERE product_catalogue_id IN ({$catalogueIds})
+                WHERE product_catalogue_id IN ({$placeholders})
                 GROUP BY product_id
-                HAVING COUNT(DISTINCT product_catalogue_id) = {$catalogueCount}
-            )")
+                HAVING COUNT(DISTINCT product_catalogue_id) = ?
+            )", array_merge($catalogueIds, [$catalogueCount]))
             ->join('product_language as tb2', 'tb2.product_id', '=', 'products.id')
             ->leftJoin('lecturers as tb3', 'tb3.id', '=', 'products.lecturer_id')
-            ->where('tb2.language_id', '=', $language_id)
+            ->where('tb2.language_id', '=', (int) $language_id)
             ->get();
 
         return $products;
